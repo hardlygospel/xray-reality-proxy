@@ -1,22 +1,26 @@
-# xray-reality-setup
+# 🔒 Xray VLESS + Reality Setup
 
-A single-script installer for [Xray-core](https://github.com/XTLS/Xray-core) with **VLESS + Reality** — the modern TLS-camouflage proxy that makes your traffic indistinguishable from a normal HTTPS connection to a legitimate site.
+> A single-script installer for [Xray-core](https://github.com/XTLS/Xray-core) with **VLESS + Reality** — the modern TLS-camouflage proxy that makes your traffic indistinguishable from a normal HTTPS connection to a legitimate site. 🕵️
 
 No fake certificates. No easily-fingerprinted patterns. No fiddly config files to hand-craft.
 
-```
+---
+
+## ⚡ Quick Start
+
+```bash
 chmod +x xray-reality-setup.sh
 
-# On your server (VPS):
+# 🖥️ On your server (VPS):
 sudo ./xray-reality-setup.sh server
 
-# On your machine (Mac or Linux desktop):
+# 💻 On your machine (Mac or Linux):
 ./xray-reality-setup.sh client
 ```
 
 ---
 
-## What is VLESS + Reality?
+## 🤔 What is VLESS + Reality?
 
 [Reality](https://github.com/XTLS/REALITY) is a TLS camouflage protocol built into Xray-core. Instead of presenting a self-signed certificate that screams "this is a proxy", Reality borrows the TLS handshake fingerprint of a real external domain — in this case, `cloudflare.com`. To a passive observer or a deep packet inspector, the connection is indistinguishable from a normal browser visiting Cloudflare over HTTPS.
 
@@ -24,11 +28,11 @@ VLESS is a lightweight, stateless transport protocol. Combined with Reality and 
 
 ---
 
-## Requirements
+## ✅ Requirements
 
-| | Server | Client |
+| | 🖥️ Server | 💻 Client |
 |---|---|---|
-| **OS** | Linux (Debian / Ubuntu / RHEL) | macOS (Apple Silicon or Intel) or Linux |
+| **OS** | Linux (Debian / Ubuntu / RHEL) | 🍎 macOS or 🐧 Linux |
 | **Root** | Yes (`sudo`) | No |
 | **Port** | 443 open inbound | No open ports needed |
 | **Tools** | `curl`, `openssl` | `curl`, `openssl` |
@@ -37,18 +41,18 @@ The script handles the Xray binary installation automatically.
 
 ---
 
-## Quickstart
+## 🚀 Setup
 
-### 1 — Server
+### 1️⃣ Server
 
 Run this on any Linux VPS. The script will:
 
-- Install Xray via the official installer
-- Generate a fresh x25519 keypair, UUID, and short ID
-- Write a server config on port 443 with Reality camouflage
-- Open port 443 via `ufw` or `firewalld` if present
-- Register and start a `systemd` service
-- Print your VLESS connection link
+- 📦 Install Xray via the official installer
+- 🔑 Generate a fresh x25519 keypair, UUID, and short ID
+- ⚙️ Write a server config on port 443 with Reality camouflage
+- 🔓 Open port 443 via `ufw` or `firewalld` if present
+- 🔄 Register and start a `systemd` service
+- 🔗 Print your VLESS connection link
 
 ```bash
 sudo ./xray-reality-setup.sh server
@@ -64,22 +68,22 @@ vless://a1b2c3d4-...@203.0.113.10:443?encryption=none&flow=xtls-rprx-vision
       &type=tcp&fp=chrome#TPPL-Reality
 ```
 
-Copy that link. You'll need it on the client.
+> 📋 Copy that link — you'll need it on the client.
 
 ---
 
-### 2 — Client
+### 2️⃣ Client
 
 Run this on your Mac or Linux desktop. The script will:
 
-- Install Xray (via Homebrew on macOS, or direct download)
-- Prompt you to paste the VLESS link from your server
-- Parse all connection parameters from the link automatically
-- Write a client config proxying through your server
-- Register and start a `launchd` (macOS) or `systemd --user` (Linux) service
-- Expose a local SOCKS5 proxy on `127.0.0.1:1080`
-- Expose a local HTTP proxy on `127.0.0.1:1081`
-- Run a live connection test to confirm everything works
+- 📦 Install Xray (via Homebrew on macOS, or direct download)
+- 📋 Prompt you to paste the VLESS link from your server
+- 🔍 Parse all connection parameters from the link automatically
+- ⚙️ Write a client config proxying through your server
+- 🔄 Register and start a `launchd` (macOS) or `systemd --user` (Linux) service
+- 🧦 Expose a local SOCKS5 proxy on `127.0.0.1:1080`
+- 🌐 Expose a local HTTP proxy on `127.0.0.1:1081`
+- ✅ Run a live connection test to confirm everything works
 
 ```bash
 ./xray-reality-setup.sh client
@@ -87,9 +91,9 @@ Run this on your Mac or Linux desktop. The script will:
 
 ---
 
-## Using the proxy
+## 🌐 Using the Proxy
 
-Once the client is running, point any application at `127.0.0.1:1080` (SOCKS5) or `127.0.0.1:1081` (HTTP).
+Once running, point any application at `127.0.0.1:1080` (SOCKS5) or `127.0.0.1:1081` (HTTP).
 
 ### Quick test
 
@@ -97,17 +101,13 @@ Once the client is running, point any application at `127.0.0.1:1080` (SOCKS5) o
 curl --proxy socks5://127.0.0.1:1080 https://ifconfig.me
 ```
 
-The IP returned should be your server's IP, not your own.
+> The IP returned should be your server's IP, not your own.
 
-### macOS system-wide proxy
+### macOS system-wide
 
-**System Settings → Network → \[your connection\] → Proxies**
-
-Enable **SOCKS Proxy** and set it to `127.0.0.1` port `1080`.
+**System Settings → Network → \[your connection\] → Proxies** → Enable **SOCKS Proxy** → `127.0.0.1:1080`
 
 ### Firefox
-
-**Settings → Network Settings → Manual proxy configuration**
 
 | Field | Value |
 |---|---|
@@ -131,22 +131,17 @@ requests.get("https://example.com", proxies=proxies)
 
 ---
 
-## Service management
+## 🔧 Service Management
 
-### macOS
+### 🍎 macOS
 
 ```bash
-# Stop
-launchctl unload ~/Library/LaunchAgents/com.xray.client.plist
-
-# Start
-launchctl load ~/Library/LaunchAgents/com.xray.client.plist
-
-# Logs
-tail -f ~/.config/xray/xray.log
+launchctl unload ~/Library/LaunchAgents/com.xray.client.plist   # Stop
+launchctl load ~/Library/LaunchAgents/com.xray.client.plist     # Start
+tail -f ~/.config/xray/xray.log                                  # Logs
 ```
 
-### Linux (server)
+### 🐧 Linux (server)
 
 ```bash
 systemctl status xray
@@ -155,7 +150,7 @@ systemctl start xray
 journalctl -u xray -f
 ```
 
-### Linux (client)
+### 🐧 Linux (client)
 
 ```bash
 systemctl --user status xray-client
@@ -166,24 +161,19 @@ journalctl --user -u xray-client -f
 
 ---
 
-## Other commands
+## 🛠️ Other Commands
 
 ```bash
-# Check current status
-./xray-reality-setup.sh status
-
-# Stop xray
-./xray-reality-setup.sh stop
-
-# Remove everything (binary, configs, service files)
-./xray-reality-setup.sh uninstall
+./xray-reality-setup.sh status     # Check current status
+./xray-reality-setup.sh stop       # Stop Xray
+./xray-reality-setup.sh uninstall  # Remove everything
 ```
 
 ---
 
-## What gets installed / created
+## 📁 What Gets Installed
 
-### Server (Linux)
+### 🖥️ Server (Linux)
 
 | Path | Purpose |
 |---|---|
@@ -193,7 +183,7 @@ journalctl --user -u xray-client -f
 | `~/.xray-vless-link.txt` | Your VLESS link (chmod 600) |
 | `/var/log/xray.log` | Log file |
 
-### Client (macOS)
+### 💻 Client (macOS)
 
 | Path | Purpose |
 |---|---|
@@ -204,7 +194,7 @@ journalctl --user -u xray-client -f
 
 ---
 
-## How Reality camouflage works
+## 🕵️ How Reality Camouflage Works
 
 ```
 Your machine                 Internet                  Your VPS
@@ -223,63 +213,48 @@ Your machine                 Internet                  Your VPS
         (inside what looks like a normal HTTPS session)
 ```
 
-The server never presents a self-signed cert. It participates in a real TLS handshake with a legitimate external host, then staples your key material on top. Observers see nothing unusual.
+The server never presents a self-signed cert. Observers see nothing unusual.
 
 ---
 
-## Routing behaviour (client)
+## 🔀 Routing Behaviour (Client)
 
-The client config routes traffic selectively:
-
-- **Private IPs** (`10.x`, `192.168.x`, `172.16.x`) → direct (not tunnelled)
-- **Chinese domains** (`geosite:cn`) → direct
-- **Everything else** → through the VLESS+Reality tunnel
+- 🏠 **Private IPs** (`10.x`, `192.168.x`, `172.16.x`) → direct
+- 🇨🇳 **Chinese domains** (`geosite:cn`) → direct
+- 🌍 **Everything else** → through the VLESS+Reality tunnel
 
 Edit `~/.config/xray/client.json` (macOS) or `/etc/xray/client.json` (Linux) to adjust routing rules.
 
 ---
 
-## Troubleshooting
+## 🔒 Security Notes
 
-**Test times out or returns wrong IP**
-
-Check the client is running: `./xray-reality-setup.sh status`
-
-Confirm port 443 is open on the server: `nc -zv YOUR_SERVER_IP 443`
-
-**Connection test returns your own IP**
-
-The proxy is running but not being used. Confirm the application is configured to use `127.0.0.1:1080` as SOCKS5, not SOCKS4.
-
-**macOS: `launchctl load` fails**
-
-Check the log: `cat ~/.config/xray/xray.log`
-
-Try running manually to see errors: `xray run -c ~/.config/xray/client.json`
-
-**Server log shows no connections**
-
-Verify the public key in your VLESS link matches the one in `/etc/xray/server.json`. If you regenerated keys, re-run the server setup and get a new VLESS link.
+- ⚠️ Your VLESS link contains private credentials — treat it like a password. Don't share it or commit it to a repo.
+- 🔄 Every server setup run generates a fresh UUID, keypair, and short ID — existing clients will need new configs.
+- 🛡️ The server blocks outbound connections to RFC 1918 private ranges to prevent SSRF-style abuse.
+- ✅ Port 443 is used by design — standard HTTPS port, rarely blocked.
 
 ---
 
-## Security notes
+## 🔍 Troubleshooting
 
-- The VLESS link contains your private connection credentials. Treat it like a password — don't share it publicly or commit it to a repository.
-- The script generates a fresh UUID, keypair, and short ID on every server setup run. Existing client configs will stop working and need to be regenerated.
-- The server config blocks outbound connections to RFC 1918 private ranges to prevent SSRF-style abuse.
-- Port 443 is used by design — it's the standard HTTPS port and is rarely blocked.
+| Problem | Fix |
+|---|---|
+| Test times out or returns wrong IP | Run `./xray-reality-setup.sh status` and check port 443 is open |
+| Connection test returns your own IP | Confirm the app is using `127.0.0.1:1080` as SOCKS5, not SOCKS4 |
+| macOS: `launchctl load` fails | Check `cat ~/.config/xray/xray.log` or run `xray run -c ~/.config/xray/client.json` |
+| Server log shows no connections | Verify the public key in your VLESS link matches `/etc/xray/server.json` |
 
 ---
 
-## Acknowledgements
+## 🙏 Acknowledgements
 
 - [XTLS/Xray-core](https://github.com/XTLS/Xray-core) — the engine
 - [XTLS/REALITY](https://github.com/XTLS/REALITY) — the camouflage protocol
-- [XTLS/Xray-install](https://github.com/XTLS/Xray-install) — the official Linux installer, used on the server path
+- [XTLS/Xray-install](https://github.com/XTLS/Xray-install) — the official Linux installer
 
 ---
 
-## Licence
+## 📄 Licence
 
-MIT
+MIT — do whatever you like with it.
